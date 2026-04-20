@@ -20,7 +20,7 @@ export async function GET(request) {
 
     const { data: settings, error } = await supabase
       .from("settings")
-      .select("fogger_status")
+      .select("fogger_status, temp_threshold")
       .eq("device_id", device_id)
       .single();
 
@@ -29,7 +29,12 @@ export async function GET(request) {
       return NextResponse.json({ fogger: false });
     }
 
-    return NextResponse.json({ fogger: settings.fogger_status });
+    return NextResponse.json({
+      fogger: settings.fogger_status,
+      temp_threshold: settings.temp_threshold,
+    });
+
+    // return NextResponse.json({ fogger: settings.fogger_status });
   } catch (err) {
     console.error("device-command error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
