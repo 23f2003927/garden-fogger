@@ -16,6 +16,36 @@ export default function DashboardClient({ device, initialLog, initialSettings })
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [message, setMessage] = useState(null); // { type: "ok"|"err", text: string }
 
+  // ── Sensor history logs ───────────────────────────────────────────────────
+  const [logs, setLogs] = useState([]);
+  const [logMode, setLogMode] = useState("hour"); // "hour" | "all"
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  // ── Fetch sensor history logs ─────────────────────────────────────────────
+  const fetchLogs = useCallback(
+    async (mode) => {
+      setLogsLoading(true);
+      let query = supabase
+        .from("sensor_logs")
+        .select("id, temperature, humidity, created_at")
+        .eq("device_id", deviceId)
+        .order("created_at", { ascending: false });
+
+      if (mode === "hour") {
+        // Filter to the last 60 minutes
+        const oneHourAgo = new Date(
+          Date.now() - 60 * 60 * 1000
+        ).toISOString();
+        query = query.gte("created_at", oneHourAgo);
+      }
+
+      const { data } = await query;
+      if (data) setLogs(data);
+      setLogsLoading(false);
+    },
+    [supabase, deviceId]
+  );
+
   // ── Auto-refresh sensor data every 10 seconds ─────────────────────────────
   const refreshData = useCallback(async () => {
     const { data: log } = await supabase
@@ -35,12 +65,26 @@ export default function DashboardClient({ device, initialLog, initialSettings })
       .single();
 
     if (s) setSettings(s);
-  }, [supabase, deviceId]);
+
+    // Also refresh the history logs
+    await fetchLogs(logMode);
+  }, [supabase, deviceId, fetchLogs, logMode]);
+
+  // Initial load of logs
+  useEffect(() => {
+    fetchLogs(logMode);
+  }, [fetchLogs, logMode]);
 
   useEffect(() => {
     const interval = setInterval(refreshData, 10_000);
     return () => clearInterval(interval);
   }, [refreshData]);
+
+  // When user switches mode, fetch immediately
+  function handleLogModeChange(mode) {
+    setLogMode(mode);
+    // fetchLogs will be triggered by the useEffect above
+  }
 
   // ── Manual fogger control ─────────────────────────────────────────────────
   async function handleFoggerControl(turnOn) {
@@ -168,6 +212,94 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         saving={settingsSaving}
         onSave={handleSaveThresholds}
       />
+
+      {/* ── Sensor History Logs ─────────────────────────────────────────── */}
+      <div className="card space-y-4">
+        {/* Header row */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-stone-200">Sensor History</h2>
+            <p className="text-stone-500 text-xs mt-0.5">
+              {logMode === "hour" ? "Showing last 1 hour" : "Showing all records"}
+              {" · "}
+              {logs.length} {logs.length === 1 ? "entry" : "entries"}
+            </p>
+          </div>
+
+          {/* Toggle buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleLogModeChange("hour")}
+              className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                logMode === "hour"
+                  ? "bg-leaf-500 border-leaf-500 text-white"
+                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-200"
+              }`}
+            >
+              1 Hour
+            </button>
+            <button
+              onClick={() => handleLogModeChange("all")}
+              className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                logMode === "all"
+                  ? "bg-leaf-500 border-leaf-500 text-white"
+                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-200"
+              }`}
+            >
+              All Data
+            </button>
+          </div>
+        </div>
+
+        {/* Table */}
+        {logsLoading ? (
+          <div className="text-center py-8 text-stone-500 text-sm">Loading…</div>
+        ) : logs.length === 0 ? (
+          <div className="bg-stone-800/40 rounded-lg p-6 text-center">
+            <p className="text-stone-500 text-sm">
+              {logMode === "hour"
+                ? "No readings in the last hour."
+                : "No sensor logs found."}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto max-h-72 overflow-y-auto rounded-lg border border-stone-700/60">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-stone-800 text-stone-400 uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="px-4 py-2.5 text-left font-medium">Timestamp</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Temp (°C)</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Humidity (%)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-800">
+                {logs.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="bg-stone-900/60 hover:bg-stone-800/60 transition-colors"
+                  >
+                    <td className="px-4 py-2.5 font-mono text-stone-400 text-xs whitespace-nowrap">
+                      {new Date(row.created_at).toLocaleString([], {
+                        month: "short",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-amber-400">
+                      {Number(row.temperature).toFixed(1)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-mist-300">
+                      {Number(row.humidity).toFixed(1)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
