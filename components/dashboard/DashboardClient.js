@@ -1,30 +1,71 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import SensorCard from "./SensorCard";
 import ControlCard from "./ControlCard";
 import ThresholdCard from "./ThresholdCard";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: format a Date for "last updated" display
+// ─────────────────────────────────────────────────────────────────────────────
+function formatUpdatedAt(date) {
+  if (!date) return null;
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export default function DashboardClient({ device, initialLog, initialSettings }) {
-  const supabase = createClient();
+  // Create the Supabase client once — storing in a ref prevents a new client
+  // being created on every render, which causes unnecessary re-renders / flicker.
+  const supabase = useMemo(() => createClient(), []);
   const deviceId = device?.device_id ?? "garden_1";
 
+  // ── Core sensor state ─────────────────────────────────────────────────────
   const [latestLog, setLatestLog] = useState(initialLog);
   const [settings, setSettings] = useState(initialSettings);
   const [controlLoading, setControlLoading] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
-  const [message, setMessage] = useState(null); // { type: "ok"|"err", text: string }
+  const [message, setMessage] = useState(null); // { type: "ok"|"err", text }
+
+  // ── Refresh UX state ──────────────────────────────────────────────────────
+  // `isRefreshing` drives a subtle spinning dot — it does NOT unmount any card.
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(
+    initialLog ? new Date() : null
+  );
 
   // ── Sensor history logs ───────────────────────────────────────────────────
   const [logs, setLogs] = useState([]);
   const [logMode, setLogMode] = useState("hour"); // "hour" | "all"
+  // logsLoading is only true on the very FIRST fetch or when the user toggles
+  // the mode. Background auto-refreshes never set this, so the table never
+  // disappears during polling.
   const [logsLoading, setLogsLoading] = useState(false);
 
-  // ── Fetch sensor history logs ─────────────────────────────────────────────
+  // Store logMode in a ref so that fetchLogs / refreshData can always read the
+  // latest value without being listed as dependencies. This prevents the
+  // interval from being torn down and recreated every time the user switches
+  // between "1 Hour" and "All Data".
+  const logModeRef = useRef(logMode);
+  useEffect(() => {
+    logModeRef.current = logMode;
+  }, [logMode]);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // fetchLogs — queries sensor_logs history
+  //   showSpinner: true  → shows the loading placeholder (initial / toggle)
+  //   showSpinner: false → silent background refresh, table stays visible
+  // ─────────────────────────────────────────────────────────────────────────
   const fetchLogs = useCallback(
-    async (mode) => {
-      setLogsLoading(true);
+    async ({ showSpinner = false } = {}) => {
+      if (showSpinner) setLogsLoading(true);
+
+      const mode = logModeRef.current;
+
       let query = supabase
         .from("sensor_logs")
         .select("id, temperature, humidity, created_at")
@@ -32,58 +73,104 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         .order("created_at", { ascending: false });
 
       if (mode === "hour") {
-        // Filter to the last 60 minutes
-        const oneHourAgo = new Date(
-          Date.now() - 60 * 60 * 1000
-        ).toISOString();
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
         query = query.gte("created_at", oneHourAgo);
       }
 
       const { data } = await query;
-      if (data) setLogs(data);
-      setLogsLoading(false);
+
+      // Only update state if we actually got rows back — never clear the
+      // existing list on a temporary Supabase hiccup.
+      if (data && data.length > 0) {
+        setLogs(data);
+      } else if (showSpinner) {
+        // If spinner was shown (intentional fetch) and there's genuinely no
+        // data, go ahead and clear — user needs to see the empty state.
+        setLogs(data ?? []);
+      }
+
+      if (showSpinner) setLogsLoading(false);
     },
     [supabase, deviceId]
   );
 
-  // ── Auto-refresh sensor data every 10 seconds ─────────────────────────────
-  const refreshData = useCallback(async () => {
-    const { data: log } = await supabase
-      .from("sensor_logs")
-      .select("*")
-      .eq("device_id", deviceId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
+  // ─────────────────────────────────────────────────────────────────────────
+  // refreshData — polls latest sensor log + settings + history
+  //   Called by the interval AND the manual "↻ Refresh" button.
+  // ─────────────────────────────────────────────────────────────────────────
+  const refreshData = useCallback(
+    async ({ manual = false } = {}) => {
+      setIsRefreshing(true);
 
-    if (log) setLatestLog(log);
+      // Fetch latest sensor log ──────────────────────────────────────────────
+      const { data: log } = await supabase
+        .from("sensor_logs")
+        .select("*")
+        .eq("device_id", deviceId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
 
-    const { data: s } = await supabase
-      .from("settings")
-      .select("*")
-      .eq("device_id", deviceId)
-      .single();
+      // SAFE MERGE: only update if we got a real row.
+      // Never pass null to setLatestLog — keeps old values on screen during
+      // temporary network hiccups.
+      if (log) {
+        setLatestLog((prev) => (prev ? { ...prev, ...log } : log));
+        setLastUpdatedAt(new Date());
+      }
 
-    if (s) setSettings(s);
+      // Fetch settings ───────────────────────────────────────────────────────
+      const { data: s } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("device_id", deviceId)
+        .single();
 
-    // Also refresh the history logs
-    await fetchLogs(logMode);
-  }, [supabase, deviceId, fetchLogs, logMode]);
+      if (s) {
+        setSettings((prev) => (prev ? { ...prev, ...s } : s));
+      }
 
-  // Initial load of logs
+      // Refresh history logs silently (no spinner) ───────────────────────────
+      await fetchLogs({ showSpinner: false });
+
+      setIsRefreshing(false);
+    },
+    [supabase, deviceId, fetchLogs]
+  );
+
+  // ── Initial log fetch (with spinner) on mount ─────────────────────────────
   useEffect(() => {
-    fetchLogs(logMode);
-  }, [fetchLogs, logMode]);
+    fetchLogs({ showSpinner: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount only
 
+  // ── Re-fetch logs with spinner when user changes mode ─────────────────────
+  // We skip the very first render (handled above) by checking if logs exist.
+  const logModeInitialized = useRef(false);
   useEffect(() => {
-    const interval = setInterval(refreshData, 10_000);
+    if (!logModeInitialized.current) {
+      logModeInitialized.current = true;
+      return; // skip — already handled by the mount effect above
+    }
+    fetchLogs({ showSpinner: true });
+  }, [logMode, fetchLogs]);
+
+  // ── Polling interval — 30 seconds ─────────────────────────────────────────
+  // refreshData is stable (no dependency on logMode thanks to logModeRef),
+  // so this effect runs ONCE and the interval is never torn down/recreated.
+  useEffect(() => {
+    const interval = setInterval(() => refreshData(), 30_000);
     return () => clearInterval(interval);
   }, [refreshData]);
 
-  // When user switches mode, fetch immediately
+  // ── Manual Refresh button ─────────────────────────────────────────────────
+  function handleManualRefresh() {
+    refreshData({ manual: true });
+  }
+
+  // ── Toggle log mode ───────────────────────────────────────────────────────
   function handleLogModeChange(mode) {
-    setLogMode(mode);
-    // fetchLogs will be triggered by the useEffect above
+    if (mode !== logMode) setLogMode(mode);
   }
 
   // ── Manual fogger control ─────────────────────────────────────────────────
@@ -162,6 +249,9 @@ export default function DashboardClient({ device, initialLog, initialSettings })
     setTimeout(() => setMessage(null), 4000);
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
       {/* Page header */}
@@ -174,9 +264,30 @@ export default function DashboardClient({ device, initialLog, initialSettings })
             device_id: {deviceId}
           </p>
         </div>
-        <button onClick={refreshData} className="btn-secondary text-sm py-1.5 px-3">
-          ↻ Refresh
-        </button>
+
+        {/* Refresh button + last-updated indicator */}
+        <div className="flex items-center gap-3">
+          {lastUpdatedAt && (
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-stone-500 font-mono">
+              {/* Spinning dot — visible only while a refresh is in flight */}
+              <span
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  isRefreshing
+                    ? "bg-leaf-400 animate-pulse"
+                    : "bg-stone-600"
+                }`}
+              />
+              {isRefreshing ? "Refreshing…" : `Updated ${formatUpdatedAt(lastUpdatedAt)}`}
+            </span>
+          )}
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="btn-secondary text-sm py-1.5 px-3 disabled:opacity-50"
+          >
+            ↻ Refresh
+          </button>
+        </div>
       </div>
 
       {/* Toast notification */}
@@ -213,7 +324,7 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         onSave={handleSaveThresholds}
       />
 
-      {/* ── Sensor History Logs ─────────────────────────────────────────── */}
+      {/* ── Sensor History Logs ────────────────────────────────────────────── */}
       <div className="card space-y-4">
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -251,9 +362,11 @@ export default function DashboardClient({ device, initialLog, initialSettings })
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table — only replaced with skeleton on intentional fetches */}
         {logsLoading ? (
-          <div className="text-center py-8 text-stone-500 text-sm">Loading…</div>
+          <div className="text-center py-8 text-stone-500 text-sm animate-pulse">
+            Loading…
+          </div>
         ) : logs.length === 0 ? (
           <div className="bg-stone-800/40 rounded-lg p-6 text-center">
             <p className="text-stone-500 text-sm">
