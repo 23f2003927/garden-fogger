@@ -66,10 +66,11 @@ export default function DashboardClient({ device, initialLog, initialSettings })
 
       const mode = logModeRef.current;
 
+      // Query across all three ESP32 nodes (device_id A, B, C)
       let query = supabase
         .from("sensor_logs")
-        .select("id, temperature, humidity, created_at")
-        .eq("device_id", deviceId)
+        .select("id, device_id, temperature, humidity, created_at")
+        .in("device_id", ["A", "B", "C"])
         .order("created_at", { ascending: false });
 
       if (mode === "hour") {
@@ -91,7 +92,7 @@ export default function DashboardClient({ device, initialLog, initialSettings })
 
       if (showSpinner) setLogsLoading(false);
     },
-    [supabase, deviceId]
+    [supabase] // no longer depends on deviceId — queries all nodes
   );
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -381,6 +382,7 @@ export default function DashboardClient({ device, initialLog, initialSettings })
               <thead className="sticky top-0 bg-stone-800 text-stone-400 uppercase text-xs tracking-wider">
                 <tr>
                   <th className="px-4 py-2.5 text-left font-medium">Timestamp</th>
+                  <th className="px-4 py-2.5 text-left font-medium">Node</th>
                   <th className="px-4 py-2.5 text-right font-medium">Temp (°C)</th>
                   <th className="px-4 py-2.5 text-right font-medium">Humidity (%)</th>
                 </tr>
@@ -399,6 +401,11 @@ export default function DashboardClient({ device, initialLog, initialSettings })
                         minute: "2-digit",
                         second: "2-digit",
                       })}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <span className="inline-block font-mono text-xs font-semibold px-1.5 py-0.5 rounded bg-stone-700 text-stone-300">
+                        {row.device_id}
+                      </span>
                     </td>
                     <td className="px-4 py-2.5 text-right font-mono font-semibold text-amber-400">
                       {Number(row.temperature).toFixed(1)}
