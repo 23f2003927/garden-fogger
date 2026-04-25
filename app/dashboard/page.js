@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import DashboardClient from "@/components/dashboard/DashboardClient";
+import PolyNodesSection from "@/components/dashboard/PolyNodesSection";
+import { fetchLatestNodeReadings } from "@/lib/supabase/queries";
 
 const DEFAULT_DEVICE_ID = "garden_1";
 
@@ -46,7 +48,7 @@ export default async function DashboardPage() {
     settings = newSettings;
   }
 
-  // 3. Fetch latest sensor log
+  // 3. Fetch latest sensor log (existing fogger node)
   const { data: latestLog } = await supabase
     .from("sensor_logs")
     .select("*")
@@ -55,11 +57,21 @@ export default async function DashboardPage() {
     .limit(1)
     .single();
 
+  // 4. Fetch initial polyhouse node readings (A, B, C) for SSR hydration
+  //    fetchLatestNodeReadings returns [readingA, readingB, readingC] — nulls ok
+  const initialNodeReadings = await fetchLatestNodeReadings(supabase);
+
   return (
-    <DashboardClient
-      device={device}
-      initialLog={latestLog ?? null}
-      initialSettings={settings}
-    />
+    <div className="space-y-10">
+      {/* ── Existing fogger dashboard ──────────────────────────────────── */}
+      <DashboardClient
+        device={device}
+        initialLog={latestLog ?? null}
+        initialSettings={settings}
+      />
+
+      {/* ── Polyhouse sensor nodes section ────────────────────────────── */}
+      <PolyNodesSection initialReadings={initialNodeReadings} />
+    </div>
   );
 }
