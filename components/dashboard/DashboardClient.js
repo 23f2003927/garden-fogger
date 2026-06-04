@@ -258,10 +258,10 @@ export default function DashboardClient({ device, initialLog, initialSettings })
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-stone-100">
+          <h1 className="text-xl font-semibold text-gray-900">
             {device?.name ?? "Garden Fogger"}
           </h1>
-          <p className="text-stone-500 text-xs mt-0.5 font-mono">
+          <p className="text-gray-500 text-xs mt-0.5 font-mono">
             device_id: {deviceId}
           </p>
         </div>
@@ -269,13 +269,13 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         {/* Refresh button + last-updated indicator */}
         <div className="flex items-center gap-3">
           {lastUpdatedAt && (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-stone-500 font-mono">
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 font-mono">
               {/* Spinning dot — visible only while a refresh is in flight */}
               <span
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
                   isRefreshing
-                    ? "bg-leaf-400 animate-pulse"
-                    : "bg-stone-600"
+                    ? "bg-green-500 animate-pulse"
+                    : "bg-gray-300"
                 }`}
               />
               {isRefreshing ? "Refreshing…" : `Updated ${formatUpdatedAt(lastUpdatedAt)}`}
@@ -296,8 +296,8 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         <div
           className={`rounded-lg px-4 py-2.5 text-sm border ${
             message.type === "ok"
-              ? "bg-leaf-500/10 border-leaf-500/40 text-leaf-400"
-              : "bg-red-900/20 border-red-800 text-red-400"
+              ? "bg-green-50 border-green-200 text-green-700"
+              : "bg-red-50 border-red-200 text-red-600"
           }`}
         >
           {message.text}
@@ -330,8 +330,8 @@ export default function DashboardClient({ device, initialLog, initialSettings })
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-stone-200">Sensor History</h2>
-            <p className="text-stone-500 text-xs mt-0.5">
+            <h2 className="font-semibold text-gray-900">Sensor History</h2>
+            <p className="text-gray-500 text-xs mt-0.5">
               {logMode === "hour" ? "Showing last 1 hour" : "Showing all records"}
               {" · "}
               {logs.length} {logs.length === 1 ? "entry" : "entries"}
@@ -344,8 +344,8 @@ export default function DashboardClient({ device, initialLog, initialSettings })
               onClick={() => handleLogModeChange("hour")}
               className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
                 logMode === "hour"
-                  ? "bg-leaf-500 border-leaf-500 text-white"
-                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-200"
+                  ? "bg-green-600 border-green-600 text-white shadow-sm"
+                  : "bg-white border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 shadow-sm"
               }`}
             >
               1 Hour
@@ -354,8 +354,8 @@ export default function DashboardClient({ device, initialLog, initialSettings })
               onClick={() => handleLogModeChange("all")}
               className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
                 logMode === "all"
-                  ? "bg-leaf-500 border-leaf-500 text-white"
-                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-200"
+                  ? "bg-green-600 border-green-600 text-white shadow-sm"
+                  : "bg-white border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 shadow-sm"
               }`}
             >
               All Data
@@ -365,21 +365,21 @@ export default function DashboardClient({ device, initialLog, initialSettings })
 
         {/* Table — only replaced with skeleton on intentional fetches */}
         {logsLoading ? (
-          <div className="text-center py-8 text-stone-500 text-sm animate-pulse">
+          <div className="text-center py-8 text-gray-400 text-sm animate-pulse">
             Loading…
           </div>
         ) : logs.length === 0 ? (
-          <div className="bg-stone-800/40 rounded-lg p-6 text-center">
-            <p className="text-stone-500 text-sm">
+          <div className="bg-gray-50 border border-gray-100 rounded-lg p-6 text-center">
+            <p className="text-gray-500 text-sm">
               {logMode === "hour"
                 ? "No readings in the last hour."
                 : "No sensor logs found."}
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto max-h-72 overflow-y-auto rounded-lg border border-stone-700/60">
+          <div className="overflow-x-auto max-h-72 overflow-y-auto rounded-lg border border-gray-200">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-stone-800 text-stone-400 uppercase text-xs tracking-wider">
+              <thead className="sticky top-0 bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200">
                 <tr>
                   <th className="px-4 py-2.5 text-left font-medium">Timestamp</th>
                   <th className="px-4 py-2.5 text-left font-medium">Node</th>
@@ -387,13 +387,13 @@ export default function DashboardClient({ device, initialLog, initialSettings })
                   <th className="px-4 py-2.5 text-right font-medium">Humidity (%)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-800">
+              <tbody className="divide-y divide-gray-100">
                 {logs.map((row) => (
                   <tr
                     key={row.id}
-                    className="bg-stone-900/60 hover:bg-stone-800/60 transition-colors"
+                    className="bg-white hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-2.5 font-mono text-stone-400 text-xs whitespace-nowrap">
+                    <td className="px-4 py-2.5 font-mono text-gray-500 text-xs whitespace-nowrap">
                       {new Date(row.created_at).toLocaleString([], {
                         month: "short",
                         day: "2-digit",
@@ -403,14 +403,14 @@ export default function DashboardClient({ device, initialLog, initialSettings })
                       })}
                     </td>
                     <td className="px-4 py-2.5">
-                      <span className="inline-block font-mono text-xs font-semibold px-1.5 py-0.5 rounded bg-stone-700 text-stone-300">
+                      <span className="inline-block font-mono text-xs font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
                         {row.device_id}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-amber-400">
+                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-amber-600">
                       {Number(row.temperature).toFixed(1)}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-mist-300">
+                    <td className="px-4 py-2.5 text-right font-mono font-semibold text-cyan-600">
                       {Number(row.humidity).toFixed(1)}
                     </td>
                   </tr>

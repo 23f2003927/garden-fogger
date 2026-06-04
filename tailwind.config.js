@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["'Courier Prime'", "Courier New", "monospace"],
-        sans: ["'DM Sans'", "sans-serif"],
+        mono: ["'JetBrains Mono'", "'Courier Prime'", "Courier New", "monospace"],
+        sans: ["'Inter'", "'DM Sans'", "sans-serif"],
       },
       colors: {
         leaf: {

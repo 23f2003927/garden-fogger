@@ -25,8 +25,8 @@ const NODE_NAMES = ["A", "B", "C"];
 // ─────────────────────────────────────────────────────────────────────────────
 function StatTile({ label, value, unit, colorClass }) {
   return (
-    <div className="bg-stone-800/60 rounded-lg p-4 text-center flex-1">
-      <p className="text-stone-500 text-xs uppercase tracking-wider mb-1">
+    <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center flex-1">
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">
         {label}
       </p>
       {value !== null ? (
@@ -35,7 +35,7 @@ function StatTile({ label, value, unit, colorClass }) {
           <span className="text-lg opacity-70">{unit}</span>
         </p>
       ) : (
-        <p className="text-stone-600 text-sm mt-1">—</p>
+        <p className="text-gray-400 text-sm mt-1">—</p>
       )}
     </div>
   );
@@ -87,10 +87,10 @@ export default function PolyNodesSection({ initialReadings }) {
       {/* Section header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-stone-100">
+          <h2 className="text-lg font-semibold text-gray-900">
             Polyhouse Sensor Nodes
           </h2>
-          <p className="text-stone-500 text-xs mt-0.5 font-mono">
+          <p className="text-gray-500 text-xs mt-0.5 font-mono">
             {onlineCount} / {NODE_NAMES.length} nodes online · auto-refresh
             every 15s
           </p>
@@ -98,13 +98,13 @@ export default function PolyNodesSection({ initialReadings }) {
 
         {/* Subtle live indicator — mirrors the existing refresh dot */}
         <span
-          className={`inline-flex items-center gap-1.5 text-xs font-mono text-stone-500 ${
+          className={`inline-flex items-center gap-1.5 text-xs font-mono text-gray-500 ${
             isRefreshing ? "opacity-100" : "opacity-50"
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              isRefreshing ? "bg-leaf-400 animate-pulse" : "bg-stone-600"
+              isRefreshing ? "bg-green-500 animate-pulse" : "bg-gray-300"
             }`}
           />
           {isRefreshing ? "Refreshing…" : "Live"}
@@ -128,8 +128,8 @@ export default function PolyNodesSection({ initialReadings }) {
       {/* Averages row */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-stone-200">Polyhouse Averages</h3>
-          <span className="text-xs text-stone-500 font-mono">
+          <h3 className="font-semibold text-gray-900">Polyhouse Averages</h3>
+          <span className="text-xs text-gray-500 font-mono">
             {readings.filter(Boolean).length} node
             {readings.filter(Boolean).length !== 1 ? "s" : ""} with data
           </span>
@@ -140,18 +140,18 @@ export default function PolyNodesSection({ initialReadings }) {
             label="Avg Temperature"
             value={avgTemp}
             unit="°C"
-            colorClass="text-amber-400"
+            colorClass="text-amber-600"
           />
           <StatTile
             label="Avg Humidity"
             value={avgHumidity}
             unit="%"
-            colorClass="text-mist-300"
+            colorClass="text-cyan-600"
           />
         </div>
 
         {readings.filter(Boolean).length === 0 && (
-          <p className="text-stone-600 text-xs text-center">
+          <p className="text-gray-400 text-xs text-center">
             No node data available yet.
           </p>
         )}

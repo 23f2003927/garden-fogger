@@ -25,12 +25,12 @@ export default function ThresholdCard({ settings, saving, onSave }) {
 
   return (
     <div className="card">
-      <h2 className="font-semibold text-stone-200 mb-1">
+      <h2 className="font-semibold text-gray-900 mb-1">
         Automation Thresholds
       </h2>
-      <p className="text-stone-500 text-sm mb-5">
+      <p className="text-gray-500 text-sm mb-5">
         Fogger turns{" "}
-        <strong className="text-stone-300">ON automatically</strong> when
+        <strong className="text-gray-800">ON automatically</strong> when
         temperature exceeds the max threshold{" "}
         <em>or</em> humidity drops below the min threshold.
       </p>
@@ -55,7 +55,7 @@ export default function ThresholdCard({ settings, saving, onSave }) {
             value={tempThreshold}
             onChange={(e) => setTempThreshold(e.target.value)}
           />
-          <p className="text-stone-600 text-xs mt-1">
+          <p className="text-gray-500 text-xs mt-1">
             Fogger ON when temp &gt; {tempThreshold}°C
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function ThresholdCard({ settings, saving, onSave }) {
             value={humidityThreshold}
             onChange={(e) => setHumidityThreshold(e.target.value)}
           />
-          <p className="text-stone-600 text-xs mt-1">
+          <p className="text-gray-500 text-xs mt-1">
             Fogger ON when humidity &lt; {humidityThreshold}%
           </p>
         </div>

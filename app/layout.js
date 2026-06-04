@@ -1,8 +1,10 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Garden Fogger — Control Panel",
-  description: "ESP32-based automated garden fogger control system",
+  title: "SmartFarm — AI-Powered Agronomic Intelligence",
+  description:
+    "SmartFarm combines spectral sensing, environmental monitoring, and crop intelligence models to help polyhouse farmers monitor crop health and make data-driven decisions.",
+  keywords: ["SmartFarm", "precision agriculture", "spectral sensor", "polyhouse", "crop health", "IoT"],
 };
 
 export default function RootLayout({ children }) {
@@ -16,11 +18,11 @@ export default function RootLayout({ children }) {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Courier+Prime:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="bg-stone-950 text-stone-100 font-sans antialiased">
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>

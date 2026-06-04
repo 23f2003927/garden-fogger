@@ -1,43 +1,43 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import LogoutButton from "@/components/dashboard/LogoutButton";
 
-export default async function DashboardLayout({ children }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/login");
-
+export default function DashboardLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       {/* Navbar */}
-      <nav className="border-b border-stone-800 bg-stone-950 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="text-xl">🌿</span>
-            <span className="font-mono text-leaf-400 font-bold tracking-tight">
-              Garden Fogger
-            </span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-stone-500 text-xs hidden sm:block truncate max-w-[180px]">
-              {user.email}
-            </span>
-            <LogoutButton />
+      <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md px-4 py-3 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-xl">🌱</span>
+              <span className="font-bold text-lg text-green-700 tracking-tight">
+                SmartFarm
+              </span>
+            </Link>
+            <div className="hidden sm:flex items-center gap-6 text-sm">
+              <Link
+                href="/dashboard"
+                className="text-gray-500 hover:text-green-700 font-medium transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/dashboard/spectral"
+                className="text-gray-500 hover:text-green-700 font-medium transition-colors"
+              >
+                Spectral Analysis
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Page content */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8">
         {children}
       </main>
 
-      <footer className="text-center text-stone-700 text-xs py-4">
-        Garden Fogger Control Panel — ESP32 System
+      <footer className="text-center text-gray-400 text-xs py-6 border-t border-gray-200">
+        SmartFarm — AI-Powered Agronomic Intelligence Platform
       </footer>
     </div>
   );
