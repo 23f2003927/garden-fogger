@@ -6,19 +6,19 @@ import SpectralChart from "./SpectralChart";
 
 // ── Channel definitions ──────────────────────────────────────────────────
 const CHANNELS = [
-  { key: "violet_415", label: "Violet", nm: "415nm", color: "#8b5cf6" },
-  { key: "indigo_445", label: "Indigo", nm: "445nm", color: "#6366f1" },
-  { key: "blue_480",   label: "Blue",   nm: "480nm", color: "#3b82f6" },
-  { key: "cyan_515",   label: "Cyan",   nm: "515nm", color: "#06b6d4" },
-  { key: "green_555",  label: "Green",  nm: "555nm", color: "#22c55e" },
-  { key: "yellow_590", label: "Yellow", nm: "590nm", color: "#eab308" },
-  { key: "orange_630", label: "Orange", nm: "630nm", color: "#f97316" },
-  { key: "red_680",    label: "Red",    nm: "680nm", color: "#ef4444" },
-  { key: "clear_channel", label: "Clear", nm: "Clear", color: "#d1d5db" },
-  { key: "nir_channel",   label: "NIR",   nm: "NIR",   color: "#a855f7" },
+  { key: "f1_415nm", label: "Violet", nm: "415nm", color: "#8b5cf6" },
+  { key: "f2_445nm", label: "Indigo", nm: "445nm", color: "#6366f1" },
+  { key: "f3_480nm", label: "Blue",   nm: "480nm", color: "#3b82f6" },
+  { key: "f4_515nm", label: "Cyan",   nm: "515nm", color: "#06b6d4" },
+  { key: "f5_555nm", label: "Green",  nm: "555nm", color: "#22c55e" },
+  { key: "f6_590nm", label: "Yellow", nm: "590nm", color: "#eab308" },
+  { key: "f7_630nm", label: "Orange", nm: "630nm", color: "#f97316" },
+  { key: "f8_680nm", label: "Red",    nm: "680nm", color: "#ef4444" },
+  { key: "clear",    label: "Clear", nm: "Clear", color: "#d1d5db" },
+  { key: "nir",      label: "NIR",   nm: "NIR",   color: "#a855f7" },
 ];
 
-const VISIBLE_CHANNELS = CHANNELS.filter(c => c.key !== "clear_channel");
+const VISIBLE_CHANNELS = CHANNELS.filter(c => c.key !== "clear");
 
 // ── AI Placeholders ──────────────────────────────────────────────────────
 const AI_FEATURES = [
@@ -117,7 +117,7 @@ export default function SpectralClient({ initialReading, initialHistory }) {
   // ── Sensor insights ─────────────────────────────────────────────────
   const insights = useMemo(() => {
     if (!latest) return null;
-    const vals = CHANNELS.filter(c => c.key !== "clear_channel")
+    const vals = CHANNELS.filter(c => c.key !== "clear")
       .map(c => ({ ...c, val: Number(latest[c.key]) || 0 }));
     const sorted = [...vals].sort((a, b) => b.val - a.val);
     const avg = vals.reduce((s, v) => s + v.val, 0) / vals.length;
@@ -283,15 +283,15 @@ export default function SpectralClient({ initialReading, initialHistory }) {
                     <td className="px-3 py-2 font-mono text-gray-500 text-xs whitespace-nowrap">
                       {formatDateTime(row.created_at)}
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#8b5cf6"}}>{Number(row.violet_415||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#6366f1"}}>{Number(row.indigo_445||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#3b82f6"}}>{Number(row.blue_480||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#06b6d4"}}>{Number(row.cyan_515||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#22c55e"}}>{Number(row.green_555||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#eab308"}}>{Number(row.yellow_590||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#f97316"}}>{Number(row.orange_630||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#ef4444"}}>{Number(row.red_680||0).toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#a855f7"}}>{Number(row.nir_channel||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#8b5cf6"}}>{Number(row.f1_415nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#6366f1"}}>{Number(row.f2_445nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#3b82f6"}}>{Number(row.f3_480nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#06b6d4"}}>{Number(row.f4_515nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#22c55e"}}>{Number(row.f5_555nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#eab308"}}>{Number(row.f6_590nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#f97316"}}>{Number(row.f7_630nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#ef4444"}}>{Number(row.f8_680nm||0).toFixed(0)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs" style={{color:"#a855f7"}}>{Number(row.nir||0).toFixed(0)}</td>
                   </tr>
                 ))}
               </tbody>
