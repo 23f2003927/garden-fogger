@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import SpectralChart from "./SpectralChart";
+import { analyzeLeafData } from "@/lib/leaf-analysis";
 
 // ── Channel definitions ──────────────────────────────────────────────────
 const CHANNELS = [
@@ -57,6 +58,8 @@ export default function SpectralClient({ initialReading, initialHistory }) {
   const [history, setHistory] = useState(initialHistory ?? []);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const leafAnalysis = useMemo(() => analyzeLeafData(latest), [latest]);
 
   // ── Supabase Realtime subscription ──────────────────────────────────
   useEffect(() => {
@@ -191,6 +194,86 @@ export default function SpectralClient({ initialReading, initialHistory }) {
         <h2 className="spectrum-chart-title">Live Spectrum Graph</h2>
         <p className="spectrum-chart-sub">Intensity vs Wavelength — updated in real-time</p>
         <SpectralChart latest={latest} channels={VISIBLE_CHANNELS} />
+      </div>
+
+      {/* ── Live Leaf Health Analysis ─────────────────────────────── */}
+      <h2 className="text-gray-900 font-semibold text-base mb-3">
+        Live Leaf Health Analysis
+      </h2>
+      <div className="leaf-health-wrap">
+        <div className="leaf-health-grid">
+          {/* Gauge Column */}
+          <div className="leaf-health-score-container">
+            {(() => {
+              const colors = {
+                "Excellent": { border: "#22c55e", bg: "#22c55e" },
+                "Healthy": { border: "#16a34a", bg: "#16a34a" },
+                "Mild Stress": { border: "#eab308", bg: "#eab308" },
+                "Severe Stress": { border: "#ef4444", bg: "#ef4444" },
+                "Not a Leaf": { border: "#6b7280", bg: "#6b7280" },
+                "Unknown": { border: "#d1d5db", bg: "#9ca3af" }
+              };
+              
+              const activeColor = colors[leafAnalysis.status] || colors["Unknown"];
+              const progressPct = `${leafAnalysis.score}%`;
+              
+              return (
+                <>
+                  <div 
+                    className="leaf-health-gauge" 
+                    style={{ 
+                      "--progress-color": activeColor.border,
+                      "--progress-pct": progressPct
+                    }}
+                  >
+                    <span className="leaf-health-score-num">
+                      {leafAnalysis.isLeaf ? leafAnalysis.score : "—"}
+                    </span>
+                  </div>
+                  <span 
+                    className="leaf-health-status-badge"
+                    style={{ "--status-color": activeColor.bg }}
+                  >
+                    {leafAnalysis.status}
+                  </span>
+                </>
+              );
+            })()}
+          </div>
+
+          {/* Details Column */}
+          <div className="leaf-health-details">
+            <div className="leaf-health-message">
+              {leafAnalysis.message}
+            </div>
+
+            <div className="leaf-health-metrics">
+              <div className="leaf-health-metric-card">
+                <div className="leaf-health-metric-label">NDVI</div>
+                <div className="leaf-health-metric-val">
+                  {leafAnalysis.isLeaf ? leafAnalysis.ndvi : "—"}
+                </div>
+                <div className="leaf-health-metric-sub">Range: 0.35 - 0.85</div>
+              </div>
+
+              <div className="leaf-health-metric-card">
+                <div className="leaf-health-metric-label">Chlorophyll Index</div>
+                <div className="leaf-health-metric-val">
+                  {leafAnalysis.isLeaf ? leafAnalysis.chlorophyllIndex : "—"}
+                </div>
+                <div className="leaf-health-metric-sub">Reflectance Ratio</div>
+              </div>
+
+              <div className="leaf-health-metric-card">
+                <div className="leaf-health-metric-label">NIR/Red Ratio</div>
+                <div className="leaf-health-metric-val">
+                  {leafAnalysis.isLeaf ? leafAnalysis.simpleRatio : "—"}
+                </div>
+                <div className="leaf-health-metric-sub">Target: &gt;1.25</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Sensor Insights ────────────────────────────────────────── */}
