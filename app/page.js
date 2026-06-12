@@ -41,37 +41,42 @@ function HeroSection() {
   return (
     <section id="hero" className="hero-section">
       <div className="hero-bg-pattern" />
-      <div className="container hero-grid">
-        {/* Text column */}
-        <div className="hero-text">
-          <span className="hero-badge">🌱 AI-Powered Agronomic Intelligence</span>
-          <h1 className="hero-headline">
-            Your Digital Agronomist for Smarter Polyhouse Farming
-          </h1>
-          <p className="hero-sub">
-            Monitor crop health, identify stress patterns, and receive actionable
-            recommendations using real-time environmental and spectral data.
-          </p>
-          <div className="hero-buttons">
-            <Link href="/dashboard" className="btn btn-primary-home" id="hero-view-dashboard">
-              View Live Dashboard
-            </Link>
-            <a href="#technology" className="btn btn-outline" id="hero-explore-tech">
-              Explore Technology
-            </a>
-          </div>
+      <div className="container" style={{ textAlign: "center", maxWidth: 820, paddingTop: 40, paddingBottom: 20 }}>
+        <span className="hero-badge">🌱 Precision Agriculture Platform</span>
+        <h1 className="hero-headline">
+          Smarter Polyhouse Farming,
+          Powered by Real-Time Data
+        </h1>
+        <p className="hero-sub" style={{ maxWidth: 600, margin: "0 auto" }}>
+          Monitor crop health with spectral sensing and environmental data.
+          Detect stress early, take action before yield is lost.
+        </p>
+        <div className="hero-buttons" style={{ justifyContent: "center" }}>
+          <Link href="/dashboard" className="btn btn-primary-home" id="hero-view-dashboard">
+            View Live Dashboard
+          </Link>
+          <a href="#technology" className="btn btn-outline" id="hero-explore-tech">
+            Explore Technology
+          </a>
         </div>
 
-        {/* Image column */}
-        <div className="hero-image-wrap">
-          <Image
-            src="/images/hero-illustration.png"
-            alt="SmartFarm polyhouse monitoring with handheld spectral scanner"
-            width={600}
-            height={480}
-            priority
-            className="hero-image"
-          />
+        {/* Live stats strip */}
+        <div style={{
+          display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 32,
+          marginTop: 48, padding: "20px 0",
+          borderTop: "1px solid rgba(0,0,0,0.06)"
+        }}>
+          {[
+            ["10", "Spectral Channels"],
+            ["Real-Time", "Data Streaming"],
+            ["415–910nm", "Wavelength Range"],
+            ["< 15s", "Refresh Rate"],
+          ].map(([val, label]) => (
+            <div key={label} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "var(--gray-900)" }}>{val}</div>
+              <div style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 2 }}>{label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -242,12 +247,12 @@ const TECH = [
   {
     icon: "🧠",
     title: "Crop Intelligence Models",
-    desc: "Spectral signatures are analyzed against crop-specific baselines to identify early stress indicators.",
+    desc: "Spectral signatures are analyzed against crop-specific baselines to flag early stress indicators.",
   },
   {
     icon: "🤖",
-    title: "Future Automation Layer",
-    desc: "Roadmap to automated actuator control — irrigation, fogging, and ventilation driven by intelligence.",
+    title: "Planned Automation Layer",
+    desc: "Roadmap to automated actuator control — irrigation, fogging, and ventilation driven by real-time data.",
   },
 ];
 
@@ -414,7 +419,7 @@ function MissionSection() {
               {[
                 ["🌿", "Sustainable Farming"],
                 ["📡", "Sensor Technology"],
-                ["🧠", "AI-Assisted Agronomy"],
+                ["🧠", "Data-Driven Agronomy"],
                 ["🎯", "Precision Agriculture"],
                 ["📈", "Data-Driven Decisions"],
               ].map(([icon, label]) => (
@@ -444,8 +449,8 @@ function Footer() {
             <span className="footer-logo-text">SmartFarm</span>
           </div>
           <p className="footer-mission">
-            AI-powered agronomic intelligence for polyhouse farmers. Combining spectral
-            sensing, environmental monitoring, and crop intelligence models.
+            Precision agronomic intelligence for polyhouse farmers. Combining spectral
+            sensing, environmental monitoring, and crop health analytics.
           </p>
         </div>
 
