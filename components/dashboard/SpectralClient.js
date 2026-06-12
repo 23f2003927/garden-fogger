@@ -180,7 +180,7 @@ export default function SpectralClient({ initialReading, initialHistory }) {
             <div className="channel-card" key={ch.key}>
               <div className="channel-label">{ch.label}</div>
               <div className="channel-wavelength">{ch.nm}</div>
-              <div className="channel-value" style={{ color: ch.color }}>
+              <div className="channel-value" style={{ color: ch.color, transition: "all 0.3s ease" }}>
                 <span className="channel-dot" style={{ background: ch.color }} />
                 {val !== null && !isNaN(val) ? val.toFixed(0) : "—"}
               </div>
@@ -211,10 +211,11 @@ export default function SpectralClient({ initialReading, initialHistory }) {
                 "Dead Leaf Detected": { border: "#b45309", bg: "#b45309" },
                 "Not a Leaf": { border: "#6b7280", bg: "#6b7280" },
                 "No Leaf Detected": { border: "#d1d5db", bg: "#9ca3af" },
+                "No Data": { border: "#d1d5db", bg: "#9ca3af" },
                 "Waiting for Analysis": { border: "#94a3b8", bg: "#94a3b8" }
               };
               
-              const activeColor = colors[leafAnalysis.status] || colors["Unknown"];
+              const activeColor = colors[leafAnalysis.status] || { border: "#94a3b8", bg: "#94a3b8" };
               const progressPct = `${leafAnalysis.score}%`;
               
               return (
