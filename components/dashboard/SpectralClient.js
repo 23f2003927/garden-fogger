@@ -59,7 +59,19 @@ export default function SpectralClient({ initialReading, initialHistory }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const leafAnalysis = useMemo(() => analyzeLeafData(latest), [latest]);
+  const [leafAnalysis, setLeafAnalysis] = useState({
+    isLeaf: false,
+    status: "Waiting for Analysis",
+    score: 0,
+    ndvi: 0,
+    chlorophyllIndex: 0,
+    simpleRatio: 0,
+    message: "Place the sensor flat on a leaf, then click the 'Analyze Current Leaf' button to scan."
+  });
+
+  const analyzeCurrentLeaf = useCallback(() => {
+    setLeafAnalysis(analyzeLeafData(latest));
+  }, [latest]);
 
   // ── Supabase Realtime subscription ──────────────────────────────────
   useEffect(() => {
@@ -197,9 +209,17 @@ export default function SpectralClient({ initialReading, initialHistory }) {
       </div>
 
       {/* ── Live Leaf Health Analysis ─────────────────────────────── */}
-      <h2 className="text-gray-900 font-semibold text-base mb-3">
-        Live Leaf Health Analysis
-      </h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-gray-900 font-semibold text-base">
+          Leaf Health Analysis
+        </h2>
+        <button 
+          onClick={analyzeCurrentLeaf}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm"
+        >
+          Analyze Current Leaf
+        </button>
+      </div>
       <div className="leaf-health-wrap">
         <div className="leaf-health-grid">
           {/* Gauge Column */}
@@ -210,7 +230,8 @@ export default function SpectralClient({ initialReading, initialHistory }) {
                 "Stressed Leaf Found": { border: "#eab308", bg: "#eab308" },
                 "Dead Leaf Detected": { border: "#b45309", bg: "#b45309" },
                 "Not a Leaf": { border: "#6b7280", bg: "#6b7280" },
-                "No Leaf Detected": { border: "#d1d5db", bg: "#9ca3af" }
+                "No Leaf Detected": { border: "#d1d5db", bg: "#9ca3af" },
+                "Waiting for Analysis": { border: "#94a3b8", bg: "#94a3b8" }
               };
               
               const activeColor = colors[leafAnalysis.status] || colors["Unknown"];
