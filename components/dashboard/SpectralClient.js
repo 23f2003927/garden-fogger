@@ -270,7 +270,15 @@ export default function SpectralClient({ initialReading, initialHistory }) {
                 <div className="leaf-health-metric-val">
                   {leafAnalysis.isLeaf ? leafAnalysis.simpleRatio : "—"}
                 </div>
-                <div className="leaf-health-metric-sub">Target: &gt;1.25</div>
+                <div className="leaf-health-metric-sub">Target: &gt;4.0</div>
+              </div>
+
+              <div className="leaf-health-metric-card">
+                <div className="leaf-health-metric-label">Green/Red Ratio</div>
+                <div className="leaf-health-metric-val">
+                  {leafAnalysis.isLeaf ? leafAnalysis.greenToRed : "—"}
+                </div>
+                <div className="leaf-health-metric-sub">Target: &gt;1.0</div>
               </div>
             </div>
           </div>
