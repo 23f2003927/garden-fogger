@@ -206,12 +206,11 @@ export default function SpectralClient({ initialReading, initialHistory }) {
           <div className="leaf-health-score-container">
             {(() => {
               const colors = {
-                "Excellent": { border: "#22c55e", bg: "#22c55e" },
-                "Healthy": { border: "#16a34a", bg: "#16a34a" },
-                "Mild Stress": { border: "#eab308", bg: "#eab308" },
-                "Severe Stress": { border: "#ef4444", bg: "#ef4444" },
+                "Green Leaf Found": { border: "#22c55e", bg: "#22c55e" },
+                "Stressed Leaf Found": { border: "#eab308", bg: "#eab308" },
+                "Dead Leaf Detected": { border: "#b45309", bg: "#b45309" },
                 "Not a Leaf": { border: "#6b7280", bg: "#6b7280" },
-                "Unknown": { border: "#d1d5db", bg: "#9ca3af" }
+                "No Leaf Detected": { border: "#d1d5db", bg: "#9ca3af" }
               };
               
               const activeColor = colors[leafAnalysis.status] || colors["Unknown"];
