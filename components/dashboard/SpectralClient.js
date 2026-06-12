@@ -59,19 +59,7 @@ export default function SpectralClient({ initialReading, initialHistory }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const [leafAnalysis, setLeafAnalysis] = useState({
-    isLeaf: false,
-    status: "Waiting for Analysis",
-    score: 0,
-    ndvi: 0,
-    chlorophyllIndex: 0,
-    simpleRatio: 0,
-    message: "Place the sensor flat on a leaf, then click the 'Analyze Current Leaf' button to scan."
-  });
-
-  const analyzeCurrentLeaf = useCallback(() => {
-    setLeafAnalysis(analyzeLeafData(latest));
-  }, [latest]);
+  const leafAnalysis = useMemo(() => analyzeLeafData(latest), [latest]);
 
   // ── Supabase Realtime subscription ──────────────────────────────────
   useEffect(() => {
@@ -209,17 +197,9 @@ export default function SpectralClient({ initialReading, initialHistory }) {
       </div>
 
       {/* ── Live Leaf Health Analysis ─────────────────────────────── */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-gray-900 font-semibold text-base">
-          Leaf Health Analysis
-        </h2>
-        <button 
-          onClick={analyzeCurrentLeaf}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm"
-        >
-          Analyze Current Leaf
-        </button>
-      </div>
+      <h2 className="text-gray-900 font-semibold text-base mb-3">
+        Leaf Health Analysis
+      </h2>
       <div className="leaf-health-wrap">
         <div className="leaf-health-grid">
           {/* Gauge Column */}
