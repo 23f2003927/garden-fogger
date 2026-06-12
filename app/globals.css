@@ -281,3 +281,26 @@ body.home-body { background: var(--white); color: var(--gray-800); font-family: 
 .leaf-health-metric-val { font-size: 18px; font-family: var(--font-mono); font-weight: 700; color: var(--gray-800); margin-top: 4px; }
 .leaf-health-metric-sub { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
 
+/* ── Solution Section updates ── */
+.solution-layout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; margin-top: 40px; }
+@media (max-width: 900px) { .solution-layout-grid { grid-template-columns: 1fr; } }
+
+.solution-steps-column { display: flex; flex-direction: column; gap: 24px; }
+.solution-step-item { display: flex; gap: 20px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 24px; transition: all 0.3s ease; }
+.solution-step-item:hover { border-color: var(--green-300); box-shadow: var(--shadow-md); transform: translateX(4px); }
+.step-num-badge { width: 48px; height: 48px; border-radius: 50%; background: var(--green-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-num-text { font-family: var(--font-mono); font-weight: 800; color: var(--green-700); font-size: 18px; }
+.step-item-content { display: flex; flex-direction: column; gap: 4px; }
+.step-item-title { font-size: 18px; font-weight: 700; color: var(--gray-900); }
+.step-item-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+.solution-device-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); transition: all 0.3s ease; }
+.solution-device-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.device-img-wrap { width: 100%; height: 320px; overflow: hidden; position: relative; background: var(--gray-100); }
+.solution-device-img { width: 100%; height: 100%; object-fit: cover; }
+.device-card-content { padding: 20px; }
+.device-badge { display: inline-block; font-size: 11px; font-weight: 700; color: var(--green-700); background: var(--green-100); padding: 3px 10px; border-radius: 100px; text-transform: uppercase; margin-bottom: 10px; }
+.device-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+.device-desc { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+

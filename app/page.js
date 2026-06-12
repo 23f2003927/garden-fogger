@@ -168,26 +168,52 @@ function SolutionSection() {
             <span className="section-badge">Our Approach</span>
             <h2 className="section-title">Introducing SmartFarm</h2>
             <p className="section-subtitle">
-              A three-step workflow that transforms how polyhouse farmers monitor and manage
+              A comprehensive hardware and software workflow that transforms how polyhouse farmers monitor and manage
               crop health — from reactive guesswork to proactive intelligence.
             </p>
           </div>
         </FadeIn>
 
-        <div className="steps-grid">
-          {STEPS.map((s, i) => (
-            <FadeIn key={s.num} delay={i * 120}>
-              <div className="step-card">
-                <div className="step-num-row">
-                  <span className="step-num">{s.num}</span>
-                  <span className="step-icon">{s.icon}</span>
+        <div className="solution-layout-grid">
+          {/* Left Column: Steps */}
+          <div className="solution-steps-column">
+            {STEPS.map((s, i) => (
+              <FadeIn key={s.num} delay={i * 100}>
+                <div className="solution-step-item">
+                  <div className="step-num-badge">
+                    <span className="step-num-text">{s.num}</span>
+                  </div>
+                  <div className="step-item-content">
+                    <h3 className="step-item-title">{s.icon} {s.title}</h3>
+                    <p className="step-item-desc">{s.desc}</p>
+                  </div>
                 </div>
-                <h3 className="step-title">{s.title}</h3>
-                <p className="step-desc">{s.desc}</p>
-                {i < STEPS.length - 1 && <div className="step-connector" />}
+              </FadeIn>
+            ))}
+          </div>
+
+          {/* Right Column: Physical Device Image */}
+          <FadeIn delay={200} className="solution-device-column">
+            <div className="solution-device-card">
+              <div className="device-img-wrap">
+                <Image
+                  src="/images/device.jpg"
+                  alt="SmartFarm Handheld IoT Spectral Scanner Device with ESP32 and AS7341"
+                  width={500}
+                  height={320}
+                  className="solution-device-img"
+                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                />
               </div>
-            </FadeIn>
-          ))}
+              <div className="device-card-content">
+                <span className="device-badge">Hardware Prototype</span>
+                <h4 className="device-title">SmartFarm Handheld IoT Spectral Scanner</h4>
+                <p className="device-desc">
+                  Custom-built handheld scanner integrating the Adafruit AS7341 spectral sensor and an ESP32 microcontroller with a built-in status display.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </div>
     </section>
@@ -476,11 +502,10 @@ function Navbar() {
         <div className="nav-links-desktop">
           <a href="#problem" className="nav-link">Problem</a>
           <a href="#solution" className="nav-link">Solution</a>
+          <Link href="/dashboard" className="nav-link">Live Dashboard</Link>
+          <Link href="/dashboard/spectral" className="nav-link">Spectral Analysis</Link>
           <a href="#technology" className="nav-link">Technology</a>
           <a href="#roadmap" className="nav-link">Roadmap</a>
-          <Link href="/dashboard" className="btn btn-primary-home btn-sm" id="nav-dashboard">
-            Dashboard
-          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -498,11 +523,10 @@ function Navbar() {
         <div className="nav-mobile">
           <a href="#problem" className="nav-link" onClick={() => setMenuOpen(false)}>Problem</a>
           <a href="#solution" className="nav-link" onClick={() => setMenuOpen(false)}>Solution</a>
+          <Link href="/dashboard" className="nav-link" onClick={() => setMenuOpen(false)}>Live Dashboard</Link>
+          <Link href="/dashboard/spectral" className="nav-link" onClick={() => setMenuOpen(false)}>Spectral Analysis</Link>
           <a href="#technology" className="nav-link" onClick={() => setMenuOpen(false)}>Technology</a>
           <a href="#roadmap" className="nav-link" onClick={() => setMenuOpen(false)}>Roadmap</a>
-          <Link href="/dashboard" className="btn btn-primary-home btn-sm" onClick={() => setMenuOpen(false)}>
-            Dashboard
-          </Link>
         </div>
       )}
     </nav>
