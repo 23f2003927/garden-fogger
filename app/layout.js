@@ -1,4 +1,5 @@
 import "./globals.css";
+import WhatsAppWidget from "../components/WhatsAppWidget";
 
 export const metadata = {
   title: "SmartFarm — AI-Powered Agronomic Intelligence",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-sans antialiased">
         {children}
+        <WhatsAppWidget />
       </body>
     </html>
   );
